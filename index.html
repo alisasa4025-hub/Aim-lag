@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Aim Lag Dashboard</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#070a10;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+.app{
+  max-width:520px;
+  margin:auto;
+  padding:20px;
+}
+
+.logo{
+  text-align:center;
+  padding:25px 0;
+}
+
+.logo h1{
+  margin:0;
+  font-size:30px;
+}
+
+.logo p{
+  color:#8993a5;
+  margin:8px 0 0;
+}
+
+.card{
+  background:#111722;
+  border:1px solid #222c3d;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:15px;
+}
+
+.card h2{
+  font-size:17px;
+  margin:0 0 15px;
+}
+
+input,textarea{
+  width:100%;
+  border:1px solid #303b4e;
+  border-radius:12px;
+  background:#080c14;
+  color:white;
+  padding:14px;
+  font-size:15px;
+  outline:none;
+}
+
+textarea{
+  height:100px;
+  resize:none;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  margin-top:10px;
+  font-size:16px;
+  font-weight:700;
+}
+
+.unlock{
+  background:white;
+  color:#080a10;
+}
+
+.openvpn{
+  background:#2563eb;
+  color:white;
+}
+
+.copy{
+  background:#293548;
+  color:white;
+}
+
+.green{
+  background:#16a34a;
+  color:white;
+}
+
+.red{
+  background:#dc2626;
+  color:white;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#080c14;
+  padding:14px;
+  border-radius:12px;
+}
+
+.dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#ef4444;
+}
+
+.dot.active{
+  background:#22c55e;
+}
+
+.small{
+  color:#8993a5;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.hidden{
+  display:none;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.box{
+  background:#080c14;
+  border-radius:12px;
+  padding:14px;
+}
+
+.label{
+  color:#8993a5;
+  font-size:12px;
+}
+
+.value{
+  margin-top:5px;
+  font-weight:700;
+}
+
+.lag{
+  text-align:center;
+  font-size:30px;
+  font-weight:800;
+  margin:15px;
+}
+
+input[type=range]{
+  padding:0;
+}
+
+.footer{
+  text-align:center;
+  color:#4f5b70;
+  font-size:12px;
+  padding:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="logo">
+  <h1>⚡ AIM LAG</h1>
+  <p>Dashboard • iOS</p>
+</div>
+
+<!-- LOGIN -->
+<div class="card">
+
+<h2>🔐 Access</h2>
+
+<input
+  id="key"
+  type="text"
+  placeholder="Enter Access Key"
+>
+
+<button class="unlock" onclick="unlock()">
+  UNLOCK
+</button>
+
+<p id="loginMsg" class="small">
+  Enter your key to continue
+</p>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="hidden">
+
+<!-- VPN -->
+
+<div class="card">
+
+<h2>🌐 VPN</h2>
+
+<div class="status">
+
+  <span id="dot" class="dot"></span>
+
+  <div>
+    <b id="vpnStatus">Disconnected</b>
+    <div class="label">Connection status</div>
+  </div>
+
+</div>
+
+<button class="openvpn" onclick="openHappyVPN()">
+  📱 OPEN HAPPY VPN
+</button>
+
+<p class="small">
+ปุ่มนี้เปิดหน้า Happy VPN เท่านั้น
+การเชื่อมต่อ VPN จริงต้องทำจากแอป VPN
+</p>
+
+</div>
+
+
+<!-- ACCOUNT -->
+
+<div class="card">
+
+<h2>👤 Account</h2>
+
+<div class="grid">
+
+<div class="box">
+  <div class="label">STATUS</div>
+  <div class="value" id="account">
+    Active
+  </div>
+</div>
+
+<div class="box">
+  <div class="label">EXPIRES</div>
+  <div class="value" id="expires">
+    -
+  </div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CONFIG -->
+
+<div class="card">
+
+<h2>⚙️ Configuration</h2>
+
+<textarea
+  id="config"
+  placeholder="Paste your VPN configuration here..."
+></textarea>
+
+<button class="copy" onclick="copyConfig()">
+  📋 COPY CONFIG
+</button>
+
+</div>
+
+
+<!-- LAG SIMULATION -->
+
+<div class="card">
+
+<h2>🎮 Lag Simulation</h2>
+
+<div class="lag">
+  <span id="lagValue">100</span> ms
+</div>
+
+<input
+  id="lagSlider"
+  type="range"
+  min="0"
+  max="1000"
+  value="100"
+  oninput="updateLag(this.value)"
+>
+
+<p class="small">
+  เป็นเพียงการแสดงค่า Latency บน Dashboard
+  ไม่ได้สร้าง Lag จริงในเกมหรือเครือข่าย
+</p>
+
+</div>
+
+
+<!-- CONTROL -->
+
+<div class="card">
+
+<h2>⚡ Control</h2>
+
+<button class="green" onclick="start()">
+  ▶ START
+</button>
+
+<button class="red" onclick="stop()">
+  ■ STOP
+</button>
+
+<p id="control" class="small">
+  Status: Stopped
+</p>
+
+</div>
+
+</div>
+
+<div class="footer">
+  AIM LAG DASHBOARD
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================
+   UNLOCK
+===================== */
+
+function unlock(){
+
+  const key =
+    document.getElementById("key").value.trim();
+
+  if(key.length < 4){
+
+    document.getElementById("loginMsg")
+      .textContent =
+      "❌ Invalid key";
+
+    return;
+  }
+
+  document.getElementById("loginMsg")
+    .textContent =
+    "✅ Unlocked";
+
+  document.getElementById("dashboard")
+    .classList.remove("hidden");
+
+  setExpiry();
+
+}
+
+
+/* =====================
+   HAPPY VPN
+===================== */
+
+function openHappyVPN(){
+
+  window.location.href =
+  "https://apps.apple.com/us/app/happy-vpn/id1614417721";
+
+}
+
+
+/* =====================
+   CONFIG COPY
+===================== */
+
+function copyConfig(){
+
+  const text =
+    document.getElementById("config").value;
+
+  if(!text){
+
+    alert("กรุณาใส่ Configuration ก่อน");
+
+    return;
+  }
+
+  navigator.clipboard.writeText(text)
+    .then(function(){
+
+      alert("✅ คัดลอกแล้ว");
+
+    })
+    .catch(function(){
+
+      alert("ไม่สามารถคัดลอกได้");
+
+    });
+
+}
+
+
+/* =====================
+   LAG
+===================== */
+
+function updateLag(value){
+
+  document.getElementById("lagValue")
+    .textContent = value;
+
+}
+
+
+/* =====================
+   START
+===================== */
+
+function start(){
+
+  document.getElementById("control")
+    .textContent =
+    "Status: Running";
+
+  document.getElementById("vpnStatus")
+    .textContent =
+    "Dashboard Running";
+
+  document.getElementById("dot")
+    .classList.add("active");
+
+}
+
+
+/* =====================
+   STOP
+===================== */
+
+function stop(){
+
+  document.getElementById("control")
+    .textContent =
+    "Status: Stopped";
+
+  document.getElementById("vpnStatus")
+    .textContent =
+    "Disconnected";
+
+  document.getElementById("dot")
+    .classList.remove("active");
+
+}
+
+
+/* =====================
+   EXPIRY
+===================== */
+
+function setExpiry(){
+
+  const date = new Date();
+
+  date.setDate(
+    date.getDate() + 30
+  );
+
+  document.getElementById("expires")
+    .textContent =
+    date.toLocaleDateString("th-TH");
+
+}
+
+</script>
+
+</body>
+</html>
