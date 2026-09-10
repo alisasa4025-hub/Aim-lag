@@ -1,127 +1,109 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aim-Lag Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aim Lag Dashboard</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      background: #0b0f19;
-      color: white;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  background:#080b14;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:25px 15px;
+}
 
-    .container {
-      max-width: 500px;
-      margin: auto;
-      padding: 25px 18px;
-    }
+.container{
+  width:100%;
+  max-width:520px;
+}
 
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
+.header{
+  text-align:center;
+  margin:20px 0 25px;
+}
 
-    .header h1 {
-      margin: 0;
-      font-size: 32px;
-    }
+.header h1{
+  margin:0;
+  font-size:32px;
+}
 
-    .header p {
-      color: #8d96a8;
-    }
+.header p{
+  color:#8d95a8;
+  margin-top:8px;
+}
 
-    .card {
-      background: #121827;
-      border: 1px solid #252e42;
-      border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 18px;
-    }
+.card{
+  background:#111624;
+  border:1px solid #252d40;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+}
 
-    .status {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.status{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      background: #777;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 8px;
-    }
+.dot{
+  width:10px;
+  height:10px;
+  background:#38d98a;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:8px;
+}
 
-    .active {
-      background: #27d17f;
-    }
+.value{
+  font-size:28px;
+  font-weight:bold;
+  margin:15px 0;
+}
 
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: 1px solid #303b52;
-      background: #080c14;
-      color: white;
-      font-size: 16px;
-    }
+input[type=range]{
+  width:100%;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border: 0;
-      border-radius: 10px;
-      background: #6d3df5;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-    }
+button{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:15px;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:12px;
+}
 
-    button:active {
-      transform: scale(.98);
-    }
+.start{
+  background:#24c477;
+  color:white;
+}
 
-    .slider {
-      width: 100%;
-    }
+.stop{
+  background:#e94b5f;
+  color:white;
+}
 
-    .value {
-      text-align: center;
-      font-size: 30px;
-      font-weight: bold;
-      margin: 15px;
-    }
+.reset{
+  background:#252d40;
+  color:white;
+}
 
-    .info {
-      color: #9ca6b8;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .success {
-      color: #27d17f;
-      margin-top: 12px;
-    }
-
-    .warning {
-      color: #ffbd4a;
-      margin-top: 12px;
-    }
-  </style>
+.info{
+  color:#929bad;
+  font-size:14px;
+  line-height:1.6;
+}
+</style>
 </head>
 
 <body>
@@ -129,159 +111,85 @@
 <div class="container">
 
   <div class="header">
-    <h1>⚡ Aim-Lag</h1>
-    <p>Latency Simulation Dashboard</p>
+    <h1>Aim Lag</h1>
+    <p>Simulation Dashboard</p>
   </div>
 
-  <!-- KEY -->
   <div class="card">
-    <h2>🔑 Access Key</h2>
+    <div class="status">
+      <span>สถานะ</span>
+      <span>
+        <span class="dot" id="dot"></span>
+        <span id="status">พร้อมใช้งาน</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div>Simulation Delay</div>
+
+    <div class="value">
+      <span id="delayValue">50</span> ms
+    </div>
 
     <input
-      id="keyInput"
-      type="text"
-      placeholder="ใส่ Access Key"
+      type="range"
+      id="delay"
+      min="0"
+      max="500"
+      value="50"
+      oninput="updateDelay()"
     >
 
-    <button onclick="unlock()">UNLOCK</button>
+    <button class="start" onclick="startSimulation()">
+      START
+    </button>
 
-    <div id="keyMessage"></div>
+    <button class="stop" onclick="stopSimulation()">
+      STOP
+    </button>
+
+    <button class="reset" onclick="resetSimulation()">
+      RESET
+    </button>
   </div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden">
-
-    <div class="card">
-      <div class="status">
-        <h2>Dashboard</h2>
-
-        <div>
-          <span id="statusDot" class="dot"></span>
-          <span id="statusText">OFF</span>
-        </div>
-      </div>
-
-      <button onclick="toggleSimulation()" id="startButton">
-        START
-      </button>
-    </div>
-
-    <!-- LATENCY -->
-    <div class="card">
-      <h2>📶 Latency Simulation</h2>
-
-      <div class="value">
-        <span id="latencyValue">50</span> ms
-      </div>
-
-      <input
-        class="slider"
-        id="latency"
-        type="range"
-        min="0"
-        max="300"
-        value="50"
-        oninput="updateLatency()"
-      >
-
-      <p class="info">
-        ปรับค่าการจำลอง latency สำหรับการทดสอบระบบของหน้าเว็บ
-      </p>
-    </div>
-
-    <!-- EXPIRATION -->
-    <div class="card">
-      <h2>⏱️ Access Information</h2>
-
-      <p>
-        สถานะ:
-        <b id="accessStatus">Active</b>
-      </p>
-
-      <p>
-        หมดอายุ:
-        <b id="expireDate">ยังไม่ได้ตั้งค่า</b>
-      </p>
-
-      <p class="info">
-        วันหมดอายุเป็นข้อมูลของ Access Key ในเดโมนี้
-      </p>
-    </div>
-
+  <div class="card">
+    <h3>ข้อมูล</h3>
+    <p class="info">
+      หน้านี้เป็นการจำลองค่า Delay สำหรับทดสอบหน้า Dashboard
+      เท่านั้น และไม่ได้เปลี่ยนแปลงเครือข่ายหรือเกมจริง
+    </p>
   </div>
 
 </div>
 
 <script>
+const delay = document.getElementById("delay");
+const delayValue = document.getElementById("delayValue");
+const statusText = document.getElementById("status");
+const dot = document.getElementById("dot");
 
-let unlocked = false;
-let running = false;
-
-const DEMO_KEY = "AIMLAG-2026";
-
-function unlock() {
-
-  const key = document.getElementById("keyInput").value.trim();
-  const message = document.getElementById("keyMessage");
-
-  if (key === DEMO_KEY) {
-
-    unlocked = true;
-
-    document.getElementById("dashboard")
-      .classList.remove("hidden");
-
-    message.className = "success";
-    message.innerText = "✓ Unlock สำเร็จ";
-
-    // ตัวอย่างวันหมดอายุ
-    const expire = new Date();
-    expire.setDate(expire.getDate() + 30);
-
-    document.getElementById("expireDate").innerText =
-      expire.toLocaleDateString("th-TH");
-
-  } else {
-
-    message.className = "warning";
-    message.innerText = "✕ Access Key ไม่ถูกต้อง";
-
-  }
+function updateDelay(){
+  delayValue.textContent = delay.value;
 }
 
-function toggleSimulation() {
-
-  if (!unlocked) return;
-
-  running = !running;
-
-  const dot = document.getElementById("statusDot");
-  const status = document.getElementById("statusText");
-  const button = document.getElementById("startButton");
-
-  if (running) {
-
-    dot.classList.add("active");
-    status.innerText = "ON";
-    button.innerText = "STOP";
-
-  } else {
-
-    dot.classList.remove("active");
-    status.innerText = "OFF";
-    button.innerText = "START";
-
-  }
+function startSimulation(){
+  statusText.textContent = "กำลังทำงาน";
+  dot.style.background = "#38d98a";
 }
 
-function updateLatency() {
-
-  const value = document.getElementById("latency").value;
-
-  document.getElementById("latencyValue").innerText = value;
-
+function stopSimulation(){
+  statusText.textContent = "หยุดแล้ว";
+  dot.style.background = "#e94b5f";
 }
 
+function resetSimulation(){
+  delay.value = 50;
+  delayValue.textContent = 50;
+  statusText.textContent = "พร้อมใช้งาน";
+  dot.style.background = "#38d98a";
+}
 </script>
 
 </body>
