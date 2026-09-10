@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aim-Lag Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #0b0f19;
+      color: white;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 25px 18px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .header p {
+      color: #8d96a8;
+    }
+
+    .card {
+      background: #121827;
+      border: 1px solid #252e42;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      background: #777;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .active {
+      background: #27d17f;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #303b52;
+      background: #080c14;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #6d3df5;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    .value {
+      text-align: center;
+      font-size: 30px;
+      font-weight: bold;
+      margin: 15px;
+    }
+
+    .info {
+      color: #9ca6b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .success {
+      color: #27d17f;
+      margin-top: 12px;
+    }
+
+    .warning {
+      color: #ffbd4a;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>⚡ Aim-Lag</h1>
+    <p>Latency Simulation Dashboard</p>
+  </div>
+
+  <!-- KEY -->
+  <div class="card">
+    <h2>🔑 Access Key</h2>
+
+    <input
+      id="keyInput"
+      type="text"
+      placeholder="ใส่ Access Key"
+    >
+
+    <button onclick="unlock()">UNLOCK</button>
+
+    <div id="keyMessage"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+
+    <div class="card">
+      <div class="status">
+        <h2>Dashboard</h2>
+
+        <div>
+          <span id="statusDot" class="dot"></span>
+          <span id="statusText">OFF</span>
+        </div>
+      </div>
+
+      <button onclick="toggleSimulation()" id="startButton">
+        START
+      </button>
+    </div>
+
+    <!-- LATENCY -->
+    <div class="card">
+      <h2>📶 Latency Simulation</h2>
+
+      <div class="value">
+        <span id="latencyValue">50</span> ms
+      </div>
+
+      <input
+        class="slider"
+        id="latency"
+        type="range"
+        min="0"
+        max="300"
+        value="50"
+        oninput="updateLatency()"
+      >
+
+      <p class="info">
+        ปรับค่าการจำลอง latency สำหรับการทดสอบระบบของหน้าเว็บ
+      </p>
+    </div>
+
+    <!-- EXPIRATION -->
+    <div class="card">
+      <h2>⏱️ Access Information</h2>
+
+      <p>
+        สถานะ:
+        <b id="accessStatus">Active</b>
+      </p>
+
+      <p>
+        หมดอายุ:
+        <b id="expireDate">ยังไม่ได้ตั้งค่า</b>
+      </p>
+
+      <p class="info">
+        วันหมดอายุเป็นข้อมูลของ Access Key ในเดโมนี้
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let unlocked = false;
+let running = false;
+
+const DEMO_KEY = "AIMLAG-2026";
+
+function unlock() {
+
+  const key = document.getElementById("keyInput").value.trim();
+  const message = document.getElementById("keyMessage");
+
+  if (key === DEMO_KEY) {
+
+    unlocked = true;
+
+    document.getElementById("dashboard")
+      .classList.remove("hidden");
+
+    message.className = "success";
+    message.innerText = "✓ Unlock สำเร็จ";
+
+    // ตัวอย่างวันหมดอายุ
+    const expire = new Date();
+    expire.setDate(expire.getDate() + 30);
+
+    document.getElementById("expireDate").innerText =
+      expire.toLocaleDateString("th-TH");
+
+  } else {
+
+    message.className = "warning";
+    message.innerText = "✕ Access Key ไม่ถูกต้อง";
+
+  }
+}
+
+function toggleSimulation() {
+
+  if (!unlocked) return;
+
+  running = !running;
+
+  const dot = document.getElementById("statusDot");
+  const status = document.getElementById("statusText");
+  const button = document.getElementById("startButton");
+
+  if (running) {
+
+    dot.classList.add("active");
+    status.innerText = "ON";
+    button.innerText = "STOP";
+
+  } else {
+
+    dot.classList.remove("active");
+    status.innerText = "OFF";
+    button.innerText = "START";
+
+  }
+}
+
+function updateLatency() {
+
+  const value = document.getElementById("latency").value;
+
+  document.getElementById("latencyValue").innerText = value;
+
+}
+
+</script>
+
+</body>
+</html>
